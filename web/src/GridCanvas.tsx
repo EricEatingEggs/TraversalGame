@@ -1,6 +1,9 @@
 import {useEffect, useRef} from "react";
 import {GridModel, GRID_W, GRID_H, WALL, OPEN} from "./gridModel";
 import {drawGrid, CELL_PX} from "./renderer";
+import {animate} from "./animator";
+import{solve} from "./solver";
+
 
 export default function GridCanvas(){
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -24,9 +27,15 @@ export default function GridCanvas(){
         drawGrid(ctx, modelRef.current);
     }, []);
     useEffect(()=> {
-        function onKey(e: KeyboardEvent){
+        async function onKey(e: KeyboardEvent){
             if(e.key === "e"){
                 eraseRef.current = !eraseRef.current;
+            }
+            if(e.key === "r"){
+                const ctx = ctxRef.current;
+                if(!ctx){return;}
+                const result = await solve(modelRef.current, "dfs");
+                animate(ctx, modelRef.current, result);
             }
         }
         window.addEventListener("keydown", onKey);
