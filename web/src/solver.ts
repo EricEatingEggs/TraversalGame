@@ -18,9 +18,9 @@ function vectToArray(vec: any): number[] {
 }
 
 export type Algo = "bfs" | "dfs";
-export async function solve(model: GridModel, algo: Algo): Promise<SolveResult> {
+export async function solveFromTo(model: GridModel, algo: Algo, start:number, end:number): Promise<SolveResult> {
     const m = await getModule(); 
-    const raw = m[algo](model.height, model.width, model.cells, model.start, model.end);
+    const raw = m[algo](model.height, model.width, model.cells, start, end);
     const result: SolveResult = {
         visitOrder: vectToArray(raw.visitOrder),
         path: vectToArray(raw.path),

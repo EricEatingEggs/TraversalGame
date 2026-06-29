@@ -2,7 +2,7 @@ import {useEffect, useRef} from "react";
 import {GridModel, GRID_W, GRID_H, WALL, OPEN} from "./gridModel";
 import {drawGrid, CELL_PX} from "./renderer";
 import {animate} from "./animator";
-import{solve} from "./solver";
+import{solveFromTo} from "./solver";
 
 
 export default function GridCanvas(){
@@ -13,6 +13,7 @@ export default function GridCanvas(){
     const eraseRef = useRef(false); //are we mid erase?
     const numWallsRef = useRef(0);
     const MAXWALLS = Math.floor(GRID_W*GRID_H*0.1);
+    const toggleModeRef = useRef(false);
 
     useEffect(() =>{
         const canvas = canvasRef.current;
@@ -31,11 +32,18 @@ export default function GridCanvas(){
             if(e.key === "e"){
                 eraseRef.current = !eraseRef.current;
             }
-            if(e.key === "r"){
+            if(e.key === "t"){
+                toggleModeRef.current = !toggleModeRef.current;
+            }
+            if(e.key === "v"){
                 const ctx = ctxRef.current;
                 if(!ctx){return;}
-                const result = await solve(modelRef.current, "dfs");
-                animate(ctx, modelRef.current, result);
+                const [player, bot] = await Promise.all([
+                    solveFromTo(modelRef.current,"dfs", modelRef.current.start, modelRef.current.end),
+                    solveFromTo(modelRef.current,"bfs", modelRef.current.end, modelRef.current.start),
+                ]);
+                //const result = await solve(modelRef.current, "dfs");
+                animate(ctx, modelRef.current,player, bot, modelRef.current.end, modelRef.current.start, toggleModeRef.current);
             }
         }
         window.addEventListener("keydown", onKey);
